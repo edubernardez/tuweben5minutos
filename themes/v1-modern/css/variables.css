@@ -1,0 +1,87 @@
+/* =========================================
+   DESIGN TOKENS (VARIABLES & TEMAS)
+   ========================================= */
+
+:root {
+    /* --- CONFIG BASE (Modern / Clean) --- */
+    --primary: #2563eb;          
+    --primary-dark: #1e40af;     
+    --on-primary: #ffffff;       
+
+    --bg-body: #f8fafc;          
+    --bg-surface: #ffffff;       
+    --bg-surface-2: #f1f5f9;     
+    
+    --text-main: #0f172a;        
+    --text-muted: #64748b;       
+    --text-light: #94a3b8;       
+
+    --success: #10b981;
+    --error: #ef4444;
+
+    /* --- DIMENSIONES --- */
+    --radius-md: 12px;
+    --radius-full: 9999px;
+    --header-height: 70px;
+    --floating-safe: 90px; 
+
+    --z-fixed: 1000;
+    --z-modal: 2000;
+    --z-toast: 3000;
+
+    --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+    --shadow-float: 0 20px 25px -5px rgb(0 0 0 / 0.15);
+    
+/* Configuración barra flotante (Cross-device) */
+    /* SAMSUNG FIX: Aumentamos a 40px para despegarlo de la barra de navegación de Android */
+    --floating-bottom: 40px; 
+    
+    /* iOS sigue usando su medida segura automática */
+    --floating-bottom-ios: calc(20px + env(safe-area-inset-bottom));
+}
+
+/* iOS Safari Fix */
+@supports (-webkit-touch-callout: none) {
+  :root { --floating-bottom: var(--floating-bottom-ios); }
+}
+
+/* --- TEMA: DARK TECH --- */
+body.theme-dark {
+    --bg-body: #000000;
+    --bg-surface: #111111;
+    --bg-surface-2: #1a1a1a;
+    
+    --text-main: #00f3ff; /* Cian Neon */
+    --text-muted: #94a3b8;
+    --text-light: #475569;
+    
+    --primary: #00f3ff;
+    --primary-dark: #00cbd6;
+    --on-primary: #000000;
+    
+    --radius-md: 4px; /* Bordes cuadrados estilo Tech */
+    --radius-full: 4px;
+    
+    --shadow-md: 0 4px 15px rgba(0, 243, 255, 0.15); /* Glow */
+    font-family: 'Courier New', monospace; /* Estilo código */
+}
+
+/* --- TEMA: LUXURY GOLD --- */
+body.theme-luxury {
+    --bg-body: #0f0f0f;
+    --bg-surface: #1c1c1c;
+    --bg-surface-2: #2a2a2a;
+    
+    --text-main: #d4af37; /* Dorado */
+    --text-muted: #e5e7eb;
+    
+    --primary: #d4af37;
+    --primary-dark: #b5952f;
+    --on-primary: #000000;
+    
+    --radius-md: 0px; /* Elegancia recta */
+    --radius-full: 0px;
+    
+    font-family: 'Times New Roman', serif; /* Estilo clásico */
+    letter-spacing: 0.5px;
+}

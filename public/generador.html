@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generador Mágico | TuWebEn5Minutos</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+    <div class="background-glow"></div>
+
+    <nav class="glass-nav">
+        <div class="logo">TuWebEn5Minutos<span class="dot">.</span></div>
+        <div class="nav-links">
+            <a href="index.html">Volver al Inicio</a>
+        </div>
+    </nav>
+
+    <div class="form-container">
+        <div style="text-align: center; margin-bottom: 40px;">
+            <h1>Crea tu <span class="text-gradient">Web Profesional</span></h1>
+            <p style="color: var(--text-muted);">Completa los datos y mira el resultado al instante.</p>
+        </div>
+
+        <div class="form-section">
+            <h3>1. Identidad del Negocio</h3>
+            
+            <label style="margin-bottom: 10px;">¿Qué vas a ofrecer?</label>
+            <div class="radio-group">
+                <div class="radio-option">
+                    <input type="radio" name="tipo" id="prod" value="productos" checked onchange="toggleForm()">
+                    <label for="prod">📦 Productos</label>
+                </div>
+                <div class="radio-option">
+                    <input type="radio" name="tipo" id="serv" value="servicios" onchange="toggleForm()">
+                    <label for="serv">🛠️ Servicios</label>
+                </div>
+                <div class="radio-option">
+                    <input type="radio" name="tipo" id="ambos" value="ambos" onchange="toggleForm()">
+                    <label for="ambos">🚀 Ambos</label>
+                </div>
+            </div>
+
+            <label>Nombre de la Tienda / Negocio</label>
+            <input type="text" id="marca" placeholder="Ej: Pizzería Don Luigi, Estudio Jurídico...">
+
+            <label>Rubro</label>
+            <input type="text" id="rubro" placeholder="Ej: Comida, Ropa, Tecnología...">
+            
+            <label>WhatsApp (Sin símbolos)</label>
+            <input type="text" id="whatsapp" placeholder="Ej: 59899123456">
+        </div>
+
+        <div class="form-section">
+            <h3>2. Estilo Visual</h3>
+            
+            <input type="hidden" id="estilo" value="moderno">
+            <input type="hidden" id="color" value="#3b82f6">
+
+            <label>Color de Marca</label>
+            <div class="color-palette">
+                <div class="color-swatch selected" style="background: #3b82f6;" onclick="seleccionarColor(this, '#3b82f6')"></div>
+                <div class="color-swatch" style="background: #8b5cf6;" onclick="seleccionarColor(this, '#8b5cf6')"></div>
+                <div class="color-swatch" style="background: #10b981;" onclick="seleccionarColor(this, '#10b981')"></div>
+                <div class="color-swatch" style="background: #ef4444;" onclick="seleccionarColor(this, '#ef4444')"></div>
+                <div class="color-swatch" style="background: #f97316;" onclick="seleccionarColor(this, '#f97316')"></div>
+                <div class="color-swatch" style="background: #00f3ff;" onclick="seleccionarColor(this, '#00f3ff')"></div> 
+                <div class="color-swatch" style="background: #d4af37;" onclick="seleccionarColor(this, '#d4af37')"></div>
+                <div class="color-swatch" style="background: #1f2937;" onclick="seleccionarColor(this, '#1f2937')"></div>
+            </div>
+
+            <label>Elige la Plantilla</label>
+            <div class="templates-grid">
+                <div class="template-card selected" onclick="seleccionarEstilo(this, 'moderno')">
+                    <img src="https://placehold.co/300x200/eee/333?text=Clean+%26+Fashion" alt="Moderno">
+                    <div class="t-name">💎 Moderno (Ropa/General)</div>
+                </div>
+                <div class="template-card" onclick="seleccionarEstilo(this, 'dark')">
+                    <img src="https://placehold.co/300x200/000/0f0?text=Dark+Tech" alt="Dark">
+                    <div class="t-name">🌑 Dark Tech (Gamer/Servicios)</div>
+                </div>
+                <div class="template-card" onclick="seleccionarEstilo(this, 'luxury')">
+                    <img src="https://placehold.co/300x200/111/d4af37?text=Luxury" alt="Lujo">
+                    <div class="t-name">👑 Lujo (Premium)</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-section" id="seccion-productos">
+            <h3>3. Productos (Carga Rápida)</h3>
+            <p style="font-size: 0.8rem; color: #888;">Si usaste el "Editor Visual", déjalo vacío. Si no, escribe: Nombre, Precio.</p>
+            <textarea id="listaProductos" placeholder="Pizza Muzzarella, 1200&#10;Hamburguesa Completa, 850"></textarea>
+        </div>
+
+        <div class="form-section hidden" id="seccion-servicios" style="display:none;">
+            <h3>3. Servicios</h3>
+            <textarea id="listaServicios" placeholder="Consulta 1h, 5000"></textarea>
+        </div>
+
+        <div class="form-section">
+            <h3>4. Textos de Bienvenida</h3>
+            
+            <label>Título Principal (Hero)</label>
+            <input type="text" id="heroTitle" placeholder="Ej: La mejor calidad en tu mesa">
+            
+            <label>Subtítulo</label>
+            <input type="text" id="heroSubtitle" placeholder="Ej: Envíos rápidos a todo el país.">
+
+            <div style="display: flex; gap: 10px;">
+                <div style="flex:1">
+                    <label>Instagram (Usuario)</label>
+                    <input type="text" id="instagram" placeholder="mitienda.uy">
+                </div>
+            </div>
+        </div>
+
+        <button onclick="generarWeb()" class="btn-magic full-width">✨ VER MI WEB AHORA</button>
+
+    </div>
+
+    <script src="js/generator.js"></script>
+</body>
+</html>

@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Acceso Clientes | TuWebEn5Minutos</title>
+    
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="../css/style.css"> 
+
+    <style>
+        /* Ajustes específicos para login */
+        body { height: 100vh; overflow: hidden; display: flex; align-items: center; justify-content: center; }
+        .login-card { position: relative; z-index: 10; background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid rgba(0, 243, 255, 0.3); padding: 40px; border-radius: 24px; width: 90%; max-width: 400px; text-align: center; box-shadow: 0 0 50px rgba(0,0,0,0.5), inset 0 0 20px rgba(0, 243, 255, 0.05); }
+        .login-card h1 { font-size: 2.2rem; margin-bottom: 8px; font-weight: 800; }
+        .login-card .subtitle { color: var(--text-muted); margin-bottom: 30px; font-size: 0.95rem; }
+        .input-group { margin-bottom: 20px; text-align: left; border: none; padding: 0; }
+        .input-group label { color: var(--primary); font-size: 0.75rem; font-weight: 700; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 1px; }
+        .input-group input { width: 100%; padding: 14px; border-radius: 12px; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); color: white; font-size: 1rem; outline: none; transition: 0.3s; }
+        .input-group input:focus { border-color: var(--primary); background: rgba(255, 255, 255, 0.08); box-shadow: 0 0 15px rgba(0, 243, 255, 0.1); }
+        .logo-box { margin-bottom: 20px; display: flex; justify-content: center; align-items: center; gap: 10px; }
+        #debugConsole { position: fixed; bottom: 0; left: 0; width: 100%; background: rgba(0,0,0,0.9); color: #00ff00; font-family: monospace; font-size: 12px; padding: 10px; border-top: 1px solid #333; z-index: 9999; max-height: 80px; overflow-y: auto; text-align: left; display: none; }
+    </style>
+</head>
+<body>
+
+    <div class="ambient-light"></div>
+
+    <div class="login-card">
+        <div class="logo-box">
+            <div class="logo" style="font-size: 1.5rem;">TuWeb<span class="highlight">En5Minutos</span>.</div>
+        </div>
+
+        <h1>Gestiona tu <br> <span class="text-gradient">Negocio</span></h1>
+        <p class="subtitle">Ingresa para controlar tu catálogo</p>
+        
+        <div class="input-group">
+            <label>Email Corporativo</label>
+            <input type="email" id="email" placeholder="ejemplo@correo.com" autocomplete="email">
+        </div>
+
+        <div class="input-group">
+            <label>Contraseña</label>
+            <input type="password" id="password" placeholder="••••••••" autocomplete="current-password">
+        </div>
+
+        <button id="btnLogin" class="btn-magic">INGRESAR AL PANEL 🚀</button>
+        <p id="uiError" style="color: #ff4444; font-size: 0.85rem; margin-top: 15px; display: none;"></p>
+    </div>
+
+    <div id="debugConsole">Iniciando sistema...</div>
+
+    <script>
+        window.onerror = function(msg, url, line) {
+            const consoleDiv = document.getElementById('debugConsole');
+            consoleDiv.style.display = "block";
+            consoleDiv.innerHTML += `<br>❌ ERROR: L${line} - ${msg}`;
+            return false;
+        };
+
+        function log(msg) {
+            console.log(msg);
+            const div = document.getElementById('debugConsole');
+            div.innerHTML += `<br>> ${msg}`;
+        }
+
+        const SUPABASE_URL = 'https://ecbttgygewlfxlusfvtn.supabase.co';
+        const SUPABASE_KEY = 'sb_publishable_w8yszqueZFM7EHw4m5xWzg_szNlldoO'; 
+
+        document.addEventListener('DOMContentLoaded', () => {
+            if (typeof window.supabase === 'undefined') return log("Error: Librería no encontrada.");
+
+            try {
+                const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+                log("Listo.");
+
+                document.getElementById('btnLogin').addEventListener('click', async () => {
+                    const email = document.getElementById('email').value;
+                    const password = document.getElementById('password').value;
+                    const btn = document.getElementById('btnLogin');
+                    const uiError = document.getElementById('uiError');
+
+                    if (!email || !password) {
+                        uiError.innerText = "Completa todos los campos.";
+                        uiError.style.display = "block";
+                        return;
+                    }
+
+                    uiError.style.display = "none";
+                    const originalText = btn.innerHTML;
+                    btn.innerHTML = "Verificando... ⏳";
+                    btn.disabled = true;
+                    
+                    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+
+                    if (error) {
+                        log("Fallo: " + error.message);
+                        btn.innerHTML = originalText;
+                        btn.disabled = false;
+                        uiError.innerText = error.message === "Invalid login credentials" ? "Datos incorrectos." : "Error: " + error.message;
+                        uiError.style.display = "block";
+                    } else {
+                        log("Éxito.");
+                        btn.style.background = "#10b981";
+                        btn.innerHTML = "¡Bienvenido! 🚀";
+                        // CORRECCIÓN 2: Redirigimos a dashboard.html (no panel.html)
+                        setTimeout(() => window.location.href = "dashboard.html", 800);
+                    }
+                });
+
+            } catch (e) { log("Error de inicialización."); }
+        });
+    </script>
+</body>
+</html>

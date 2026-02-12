@@ -1,0 +1,50 @@
+/* =========================================
+   MODERN CSS RESET
+   ========================================= */
+*, *::before, *::after { box-sizing: border-box; }
+
+body, h1, h2, h3, h4, p, figure, blockquote, dl, dd, ul, ol { 
+    margin: 0; 
+    padding: 0; 
+}
+
+html { 
+    scroll-behavior: smooth; 
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+}
+
+
+body {
+    min-height: 100vh; 
+    text-rendering: optimizeSpeed; 
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+/* Imágenes responsivas por defecto */
+img, picture, video, canvas, svg { 
+    display: block; 
+    max-width: 100%; 
+}
+
+/* Evitar desbordamientos en inputs y botones */
+input, button, textarea, select { 
+    font: inherit; 
+}
+
+ul[role='list'], ol[role='list'] { 
+    list-style: none; 
+}
+
+/* Eliminar animaciones si el usuario lo prefiere */
+@media (prefers-reduced-motion: reduce) {
+    html:focus-within { scroll-behavior: auto; }
+    *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
+}

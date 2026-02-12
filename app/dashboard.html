@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel de Control | TuWebEn5Minutos</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="../css/style.css">
+    
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <style>
+        body { overflow: hidden; height: 100vh; display: flex; flex-direction: column; } 
+        .main-layout { display: none; grid-template-columns: 350px 1fr 420px; height: 100%; width: 100%; overflow: hidden; }
+        .col-products { background: rgba(20, 20, 23, 0.95); border-right: 1px solid rgba(255,255,255,0.1); padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 15px; }
+        .col-config { padding: 30px; overflow-y: auto; background: radial-gradient(circle at top left, rgba(20,20,30,1), #000); }
+        .col-preview { background: #050505; border-left: 1px solid rgba(255,255,255,0.1); display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; position: relative; background-image: radial-gradient(#222 1px, transparent 1px); background-size: 20px 20px; }
+        .phone-mockup { width: 100%; max-width: 340px; height: 700px; border: 14px solid #1a1a1a; border-radius: 36px; overflow: hidden; background: white; position: relative; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.8); }
+        .phone-mockup iframe { width: 100%; height: 100%; border: none; background: #fff; }
+        .preview-label { margin-bottom: 15px; color: #666; font-size: 0.75rem; font-weight: 700; letter-spacing: 2px; }
+        .add-product-card { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; padding: 15px; }
+        .product-list-item { display: flex; gap: 12px; align-items: center; background: rgba(255, 255, 255, 0.02); padding: 10px; border-radius: 12px; border: 1px solid transparent; transition: 0.2s; }
+        .product-list-item:hover { border-color: rgba(255,255,255,0.1); background: rgba(255,255,255,0.05); }
+        .product-list-item img { width: 45px; height: 45px; border-radius: 8px; object-fit: cover; }
+        .panel-tabs { display: flex; gap: 10px; margin-bottom: 25px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 15px; }
+        .tab-btn { background: none; border: none; color: #64748b; padding: 8px 16px; cursor: pointer; font-weight: 600; font-size: 0.95rem; transition: 0.3s; }
+        .tab-btn.active { color: var(--primary); background: rgba(0, 243, 255, 0.05); border-radius: 8px; }
+        .tab-content { display: none; animation: fadeIn 0.4s ease; }
+        .tab-content.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+        #loadingScreen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #030305; z-index: 10000; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: opacity 0.5s ease; }
+        .loader { width: 48px; height: 48px; border: 5px solid #FFF; border-bottom-color: var(--primary); border-radius: 50%; animation: rotation 1s linear infinite; margin-bottom: 20px; }
+        @keyframes rotation { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        #wizardOverlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(3, 3, 5, 0.98); z-index: 9999; display: none; align-items: center; justify-content: center; backdrop-filter: blur(15px); }
+        .wizard-card { background: rgba(255, 255, 255, 0.03); border: 1px solid var(--primary); padding: 40px; border-radius: 24px; width: 90%; max-width: 500px; text-align: center; }
+        @media (max-width: 1100px) {
+            .main-layout { grid-template-columns: 1fr; overflow-y: auto; display: block; }
+            .col-preview { display: none; }
+            .col-products { height: auto; border-right: none; border-bottom: 1px solid #333; }
+            body { overflow-y: auto; }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="loadingScreen">
+        <div class="loader"></div>
+        <p style="color: #94a3b8; letter-spacing: 1px; font-weight: bold;">CARGANDO PANEL...</p>
+        <div id="statusLog" style="color:#666; margin-top:10px; font-family:monospace;">Conectando...</div>
+        <button onclick="location.reload()" style="margin-top:20px; padding:10px 20px; background:var(--primary); border:none; border-radius:8px; cursor:pointer; font-weight:bold; display:none;" id="btnReload">RECARGAR</button>
+    </div>
+
+    <div id="wizardOverlay">
+        <div class="wizard-card">
+            <div id="step1">
+                <h2 class="text-gradient" style="margin-bottom: 10px;">1. Identidad 🚀</h2>
+                <div class="input-group" style="text-align: left; border:none; padding:0; margin-bottom: 15px;">
+                    <label style="color:var(--primary); font-size: 0.75rem; font-weight:700;">NOMBRE DE TU MARCA</label>
+                    <input type="text" id="wNombre" placeholder="Ej: DelNorte Store" style="width:100%; padding:12px; background:rgba(255,255,255,0.05); border:1px solid #333; color:white; border-radius:12px;">
+                </div>
+                <div class="input-group" style="text-align: left; border:none; padding:0; margin-bottom: 25px;">
+                    <label style="color:var(--primary); font-size: 0.75rem; font-weight:700;">WHATSAPP</label>
+                    <div style="display: flex; gap: 10px;">
+                        <select id="wPrefix" style="width: 120px; padding:12px; background:#111; color:white; border-radius:12px; border:1px solid #333;"><option value="598">🇺🇾 +598</option><option value="54">🇦🇷 +54</option></select>
+                        <input type="tel" id="wWsp" placeholder="099123456" style="flex:1; padding:12px; background:rgba(255,255,255,0.05); border:1px solid #333; color:white; border-radius:12px;">
+                    </div>
+                </div>
+                <button onclick="changeWizardStep(2)" class="btn-magic" style="width: 100%; justify-content: center;">SIGUIENTE</button>
+            </div>
+            <div id="step2" style="display:none;">
+                <h2 class="text-gradient">2. Estilo 🎨</h2>
+                <div class="input-group" style="text-align: left; border:none; padding:0; margin-bottom: 15px;">
+                    <label>TEMA</label>
+                    <select id="wTema" style="width:100%; padding:12px; background:#111; color:white; border-radius:12px; border:1px solid #333;">
+                        <option value="base">💎 Modern Clean</option>
+                        <option value="dark">🌑 Dark Tech</option>
+                        <option value="luxury">👑 Luxury Gold</option>
+                    </select>
+                </div>
+                <div class="input-group" style="text-align: left; border:none; padding:0; margin-bottom: 25px;">
+                    <label>COLOR</label>
+                    <input type="color" id="wColor" value="#00f3ff" style="width:100%; height:50px; cursor:pointer;">
+                </div>
+                <button onclick="changeWizardStep(3)" class="btn-magic" style="width: 100%; justify-content: center;">SIGUIENTE</button>
+            </div>
+            <div id="step3" style="display:none;">
+                <h2 class="text-gradient">3. ¡Listo! ✨</h2>
+                <div class="input-group" style="text-align: left; border:none; padding:0; margin-bottom: 15px;">
+                    <label>TITULO HERO</label>
+                    <input type="text" id="wHero" placeholder="Ej: Bienvenidos" style="width:100%; padding:12px; background:rgba(255,255,255,0.05); border:1px solid #333; color:white; border-radius:12px;">
+                </div>
+                <div class="input-group" style="text-align: left; border:none; padding:0; margin-bottom: 25px;">
+                    <label>ENVÍO GRATIS DESDE ($)</label>
+                    <input type="number" id="wEnvio" placeholder="2000" style="width:100%; padding:12px; background:rgba(255,255,255,0.05); border:1px solid #333; color:white; border-radius:12px;">
+                </div>
+                <button onclick="crearTiendaFinal()" class="btn-magic" id="btnFinalizar" style="width: 100%; justify-content: center;">CREAR TIENDA</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="main-layout" id="mainLayout">
+        
+        <aside class="col-products">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                <h3 style="font-size:1.1rem; color:white;">📦 Catálogo</h3>
+                <button onclick="cargarProductos()" style="background:none; border:none; color:var(--primary); cursor:pointer;"><i class="ph-bold ph-arrows-clockwise"></i></button>
+            </div>
+
+            <div class="add-product-card">
+                <input type="text" id="pNombre" placeholder="Nombre (Ej: Nike Air)" style="width:100%; background:rgba(0,0,0,0.3); border:1px solid #333; padding:10px; border-radius:8px; color:white; margin-bottom:10px;">
+                <div style="display:flex; gap:10px; margin-bottom:10px;">
+                    <input type="number" id="pPrecio" placeholder="$ Precio" style="flex:1; background:rgba(0,0,0,0.3); border:1px solid #333; padding:10px; border-radius:8px; color:white;">
+                    <select id="pCategoria" style="flex:1; background:#111; border:1px solid #333; padding:10px; border-radius:8px; color:white;">
+                        <option value="general">General</option>
+                        <option value="ofertas">Ofertas</option>
+                    </select>
+                </div>
+                <input type="text" id="pFoto" placeholder="URL Imagen (Opcional)" style="width:100%; background:rgba(0,0,0,0.3); border:1px solid #333; padding:10px; border-radius:8px; color:white; margin-bottom:15px;">
+                <button onclick="guardarProducto()" class="btn-magic" style="width:100%; justify-content:center; font-size:0.9rem;">+ AGREGAR PRODUCTO</button>
+            </div>
+
+            <div id="listaProductos" style="flex:1; overflow-y:auto; display:flex; flex-direction:column; gap:10px;"></div>
+
+            <div style="margin-top:auto; padding-top:15px; border-top:1px solid rgba(255,255,255,0.1); display:flex; justify-content:space-between; align-items:center;">
+                <div style="font-size:0.8rem; color:#94a3b8;"><i class="ph-fill ph-user-circle"></i> <span id="userEmail">Cargando...</span></div>
+                <button onclick="cerrarSesion()" style="color:#ef4444; background:none; border:none; cursor:pointer; font-size:0.8rem;">Salir</button>
+            </div>
+        </aside>
+
+        <main class="col-config">
+            <nav style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+                <h2 class="text-gradient" id="tituloTienda">Mi Tienda</h2>
+                <div class="panel-tabs" style="margin:0; border:none;">
+                    <button class="tab-btn active" onclick="switchTab('tab-config')">Configuración</button>
+                    <button class="tab-btn" onclick="switchTab('tab-diseno')">Diseño</button>
+                </div>
+            </nav>
+
+            <div id="tab-config" class="tab-content active">
+                <div class="config-grid">
+                    <div class="input-group" style="grid-column: 1 / -1;">
+                        <label>Título Principal</label>
+                        <input type="text" id="cHeroTitulo">
+                    </div>
+                    <div class="input-group">
+                        <label>Texto Promocional</label>
+                        <input type="text" id="cPromoTexto">
+                    </div>
+                    <div class="input-group">
+                        <label>Envío Gratis desde ($)</label>
+                        <input type="number" id="cEnvioGratis">
+                    </div>
+                    <div class="input-group" style="grid-column: 1 / -1;">
+                        <label>WhatsApp</label>
+                        <input type="text" id="cWhatsapp">
+                    </div>
+                </div>
+                <button onclick="guardarConfiguracion()" class="btn-magic" style="margin-top:25px;">GUARDAR CAMBIOS</button>
+            </div>
+
+            <div id="tab-diseno" class="tab-content">
+                <p style="color:#666; margin-bottom:20px;">Personaliza la apariencia. Mira los cambios en el celular 👉</p>
+                <div class="config-grid">
+                    <div class="input-group">
+                        <label>Tema</label>
+                        <select id="cTema" onchange="actualizarPreviewEnVivo()">
+                            <option value="base">💎 Modern Clean</option>
+                            <option value="dark">🌑 Dark Tech</option>
+                            <option value="luxury">👑 Luxury Gold</option>
+                        </select>
+                    </div>
+                    <div class="input-group">
+                        <label>Color</label>
+                        <input type="color" id="cColor" style="height:50px; cursor:pointer;" oninput="actualizarPreviewEnVivo()">
+                    </div>
+                </div>
+                <button onclick="guardarConfiguracion()" class="btn-magic" style="margin-top:25px;">APLICAR DISEÑO</button>
+            </div>
+        </main>
+
+        <aside class="col-preview">
+            <span class="preview-label">VISTA PREVIA EN VIVO</span>
+            <div class="phone-mockup">
+                <iframe id="livePreviewFrame" src="about:blank"></iframe>
+            </div>
+            <div style="margin-top:20px; text-align:center;">
+                <button onclick="verMiWeb()" style="background:transparent; border:1px solid var(--primary); color:var(--primary); padding:10px 20px; border-radius:20px; cursor:pointer; font-weight:bold; transition:0.3s;">🌍 ABRIR WEB REAL</button>
+            </div>
+        </aside>
+
+    </div>
+
+    <script>
+        const SUPABASE_URL = 'https://ecbttgygewlfxlusfvtn.supabase.co';
+        const SUPABASE_KEY = 'sb_publishable_w8yszqueZFM7EHw4m5xWzg_szNlldoO';
+        
+        let dbClient = null;
+        let currentUser = null;
+        let tiendaActual = null;
+
+        function getSupabase() {
+            if (dbClient) return dbClient;
+            if (typeof window.supabase !== 'undefined' && window.supabase.createClient) {
+                try {
+                    dbClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+                    return dbClient;
+                } catch (e) { return null; }
+            }
+            return null;
+        }
+
+        function updateLog(msg) { document.getElementById('statusLog').innerText = msg; }
+
+        document.addEventListener('DOMContentLoaded', async () => { await checkSession(); });
+
+        async function checkSession() {
+            try {
+                updateLog("Conectando...");
+                const sb = getSupabase();
+                if (!sb) throw new Error("Librería no cargada.");
+
+                const { data: { session }, error: authError } = await sb.auth.getSession();
+                if (authError || !session) { window.location.href = "login.html"; return; }
+                
+                currentUser = session.user;
+                if(document.getElementById('userEmail')) document.getElementById('userEmail').innerText = currentUser.email;
+
+                updateLog("Cargando datos...");
+                const { data: tienda, error: dbError } = await sb
+                    .from('tiendas').select('*').eq('user_id', currentUser.id).maybeSingle();
+
+                if (dbError) throw dbError;
+
+                document.getElementById('loadingScreen').style.display = 'none';
+
+                if (!tienda) { 
+                    document.getElementById('wizardOverlay').style.display = 'flex'; 
+                } else {
+                    iniciarPanel(tienda);
+                }
+
+            } catch (err) {
+                console.error(err);
+                updateLog("Error: " + err.message);
+                document.getElementById('btnReload').style.display = 'block';
+            }
+        }
+
+        function iniciarPanel(tienda) {
+            tiendaActual = tienda;
+            document.getElementById('wizardOverlay').style.display = 'none';
+            document.getElementById('mainLayout').style.display = 'grid'; 
+            
+            if(document.getElementById('tituloTienda')) document.getElementById('tituloTienda').innerText = tienda.nombre_tienda;
+            
+            fillConfigData();
+            cargarProductos();
+
+            // CORRECCIÓN 2: Ruta del Iframe relativa. Salimos de 'app' y entramos a 'themes'
+            const iframe = document.getElementById('livePreviewFrame');
+            iframe.src = `../themes/v1-base/index.html?s=${tienda.slug}&t=${Date.now()}`;
+        }
+
+        function actualizarPreviewEnVivo() {
+            const iframe = document.getElementById('livePreviewFrame');
+            const theme = document.getElementById('cTema').value;
+            const color = document.getElementById('cColor').value;
+            iframe.contentWindow.postMessage({ action: 'CHANGE_THEME', theme: theme }, '*');
+            iframe.contentWindow.postMessage({ action: 'CHANGE_COLOR', color: color }, '*');
+        }
+
+        async function guardarConfiguracion() {
+            const sb = getSupabase();
+            if (!sb) return;
+
+            const updates = {
+                whatsapp: document.getElementById('cWhatsapp').value,
+                tema: document.getElementById('cTema').value,
+                color_primario: document.getElementById('cColor').value,
+                config_json: {
+                    hero_titulo: document.getElementById('cHeroTitulo').value,
+                    promo_texto: document.getElementById('cPromoTexto').value,
+                    envio_gratis_desde: parseInt(document.getElementById('cEnvioGratis').value)
+                }
+            };
+            const { error } = await sb.from('tiendas').update(updates).eq('id', tiendaActual.id);
+            if(error) alert(error.message);
+            else { 
+                alert("¡Guardado!"); 
+                document.getElementById('livePreviewFrame').contentWindow.location.reload();
+            }
+        }
+
+        async function cargarProductos() {
+            const sb = getSupabase();
+            if (!sb) return;
+            const { data } = await sb.from('productos').select('*').eq('tienda_id', tiendaActual.id).order('created_at', { ascending: false });
+            
+            const list = document.getElementById('listaProductos');
+            list.innerHTML = (!data || data.length === 0) ? '<p style="color:#666;text-align:center;padding:20px;">Sin productos</p>' : '';
+            
+            if(data) data.forEach(p => {
+                list.innerHTML += `
+                    <div class="product-list-item">
+                        <img src="${p.foto_url || 'https://placehold.co/100'}" onerror="this.src='https://placehold.co/100'">
+                        <div style="flex:1;">
+                            <div style="font-weight:bold; font-size:0.9rem; color:white;">${p.nombre}</div>
+                            <div style="color:var(--primary); font-size:0.8rem; font-weight:700;">$${p.precio}</div>
+                        </div>
+                        <button class="btn-delete" onclick="borrarProducto('${p.id}')"><i class="ph-bold ph-trash"></i></button>
+                    </div>`;
+            });
+        }
+
+        async function guardarProducto() {
+            const sb = getSupabase();
+            if (!sb) return;
+            const n = document.getElementById('pNombre').value;
+            const p = document.getElementById('pPrecio').value;
+            if (!n || !p) return alert("Faltan datos");
+            
+            await sb.from('productos').insert({ 
+                nombre: n, precio: p, 
+                categoria: document.getElementById('pCategoria').value, 
+                foto_url: document.getElementById('pFoto').value, 
+                tienda_id: tiendaActual.id 
+            });
+            
+            document.getElementById('pNombre').value = "";
+            document.getElementById('pPrecio').value = "";
+            document.getElementById('pFoto').value = "";
+            
+            cargarProductos();
+            document.getElementById('livePreviewFrame').contentWindow.location.reload();
+        }
+
+        async function borrarProducto(id) { 
+            const sb = getSupabase();
+            if (!sb) return;
+            if(confirm("¿Borrar?")) { 
+                await sb.from('productos').delete().eq('id', id); 
+                cargarProductos(); 
+                document.getElementById('livePreviewFrame').contentWindow.location.reload();
+            } 
+        }
+
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+            event.currentTarget.classList.add('active');
+            if (tabId !== 'tab-productos') fillConfigData();
+        }
+
+        function fillConfigData() {
+            if (!tiendaActual) return;
+            document.getElementById('cWhatsapp').value = tiendaActual.whatsapp || "";
+            document.getElementById('cTema').value = tiendaActual.tema || "base";
+            document.getElementById('cColor').value = tiendaActual.color_primario || "#00f3ff";
+            if (tiendaActual.config_json) {
+                document.getElementById('cHeroTitulo').value = tiendaActual.config_json.hero_titulo || "";
+                document.getElementById('cPromoTexto').value = tiendaActual.config_json.promo_texto || "";
+                document.getElementById('cEnvioGratis').value = tiendaActual.config_json.envio_gratis_desde || 0;
+            }
+        }
+
+        function changeWizardStep(step) {
+            ['step1', 'step2', 'step3'].forEach(s => document.getElementById(s).style.display = 'none');
+            document.getElementById(`step${step}`).style.display = 'block';
+        }
+
+        async function crearTiendaFinal() {
+            const sb = getSupabase();
+            if (!sb) return;
+            try {
+                const btn = document.getElementById('btnFinalizar');
+                btn.disabled = true; btn.innerText = "Creando... ⏳";
+                
+                const nombre = document.getElementById('wNombre').value;
+                const slug = nombre.toLowerCase().trim().replace(/\s+/g, '-').replace(/[^\w-]+/g, '');
+                
+                const { error } = await sb.from('tiendas').insert({
+                    user_id: currentUser.id,
+                    nombre_tienda: nombre,
+                    whatsapp: document.getElementById('wPrefix').value + document.getElementById('wWsp').value,
+                    tema: document.getElementById('wTema').value,
+                    color_primario: document.getElementById('wColor').value,
+                    slug: slug,
+                    config_json: { promo_texto: "Bienvenidos", envio_gratis_desde: document.getElementById('wEnvio').value }
+                });
+
+                if (error) throw error;
+                location.reload();
+            } catch (e) {
+                alert(e.message);
+                document.getElementById('btnFinalizar').disabled = false;
+            }
+        }
+
+        async function cerrarSesion() { 
+            const sb = getSupabase();
+            if (sb) await sb.auth.signOut(); 
+            window.location.href = "login.html"; 
+        }
+        
+        // CORRECCIÓN 3: Al hacer click en "Abrir Web Real", también usamos la ruta correcta.
+        function verMiWeb() { if(tiendaActual) window.open(`../themes/v1-base/index.html?s=${tiendaActual.slug}`, '_blank'); }
+    </script>
+</body>
+</html>

@@ -1,0 +1,49 @@
+/* =========================================
+   MOBILE & TABLET ADJUSTMENTS (CLEAN)
+   ========================================= */
+
+@media (max-width: 768px) {
+    
+    /* 1. Header más compacto */
+    :root { --header-height: 60px; }
+
+    /* 2. Hero Section */
+    .hero-section { padding: 60px 0; background-attachment: scroll; /* Fix performance móvil */ }
+    .hero-content h2 { font-size: 2rem; }
+    .hero-content p { padding: 0 20px; }
+
+    /* 3. Grilla Productos (2 Columnas) */
+    .products-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+        gap: 12px;
+    }
+    
+    /* Tarjeta más compacta */
+    .card-info { padding: 10px; }
+    .prod-title { font-size: 0.85rem; }
+    .btn-add { width: 32px; height: 32px; font-size: 1rem; }
+
+    /* 4. Modales tipo "Sheet" (Desde abajo) */
+    .modal-panel {
+        max-width: 100%;
+        height: 85%; /* Deja ver un poco del fondo arriba */
+        margin-top: auto; 
+        border-radius: 20px 20px 0 0;
+        transform: translateY(100%); /* Cambia animación a vertical */
+    }
+    .modal-backdrop.active .modal-panel { transform: translateY(0); }
+    
+    /* 5. Footer centrado */
+    footer { text-align: center; }
+    .footer-brand { align-items: center; display: flex; flex-direction: column; }
+    .social-links { justify-content: center; }
+
+    /* NOTA: Se eliminó la sección de botones flotantes para que usen 
+       el estilo global "Premium" definido en style.css */
+}
+
+/* Pantallas muy pequeñas */
+@media (max-width: 320px) {
+  .products-grid { grid-template-columns: 1fr; }
+}

@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Cargando Tienda...</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
+
+    <link rel="stylesheet" href="css/reset.css">
+    <link rel="stylesheet" href="css/variables.css">
+    <link rel="stylesheet" href="css/animations.css">
+    <link rel="stylesheet" href="css/style.css">
+	<link rel="stylesheet" href="css/responsive.css">
+</head>
+<body>
+
+    <div class="fixed-top-wrapper">
+        <div id="promoBar" class="promo-bar" role="alert">
+            <p>🔥 <span id="promoText">Cargando ofertas...</span></p>
+        </div>
+
+        <header class="sticky-header">
+            <div class="container header-grid">
+                <div class="header-left"></div>
+                <div class="brand-centered">
+                    <div class="logo-icon"><i class="ri-store-2-fill"></i></div>
+                    <h1 id="brandName" class="logo-text">Mi Tienda</h1>
+                </div>
+                <div class="header-right"></div>
+            </div>
+        </header>
+
+        <nav class="sub-navbar">
+            <div class="container nav-grid">
+                <a href="#" class="nav-link">Inicio</a>
+                <a href="#productos" class="nav-link">Productos</a>
+                <button class="nav-cart-btn" id="cartOpenBtn">
+                    <i class="ri-shopping-bag-3-line"></i>
+                    <span class="badge" id="headerCartBadge">0</span>
+                </button>
+            </div>
+        </nav>
+    </div>
+
+    <section class="hero-section">
+        <div class="hero-content container">
+            <h2 id="heroTitle">Bienvenidos</h2>
+            <p id="heroSubtitle">Elegí tus productos y pedí por WhatsApp.</p>
+            <a href="#productos" class="btn-primary">Ver productos <i class="ri-arrow-down-s-line"></i></a>
+        </div>
+    </section>
+
+    <section class="filters-section" id="productos">
+        <div class="container">
+            <div class="search-box">
+                <i class="ri-search-line icon-search"></i>
+                <input id="searchInput" type="text" placeholder="Buscar...">
+            </div>
+            <nav id="categoriasContainer" class="cats-wrapper"></nav>
+        </div>
+    </section>
+
+    <main class="container">
+        <p id="noResults" class="no-results hidden">No hay resultados.</p>
+        <div id="gridProductos" class="products-grid"></div>
+    </main>
+
+    <section class="info-highlights container">
+        <div class="info-card" onclick="ui.abrirModalInfo('envios')">
+            <div class="icon-wrap"><i class="ri-truck-line"></i></div>
+            <div class="text-wrap"><h3>Envíos</h3><p>Ver zonas</p></div>
+        </div>
+        <div class="info-card" onclick="ui.abrirModalInfo('pagos')">
+            <div class="icon-wrap"><i class="ri-bank-card-line"></i></div>
+            <div class="text-wrap"><h3>Pagos</h3><p>Métodos aceptados</p></div>
+        </div>
+    </section>
+
+    <footer id="contacto">
+        <div class="container footer-grid-centered">
+            <h4 id="footerName">Mi Tienda</h4>
+            <div class="social-buttons">
+                <a href="#" class="social-btn whatsapp wsp-link" target="_blank"><i class="ri-whatsapp-line"></i> WhatsApp</a>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>© <span id="year"></span> - TuWebEn5Minutos</p>
+        </div>
+    </footer>
+
+    <div class="floating-actions">
+        <a id="wspFloat" class="float-btn whatsapp" href="#" target="_blank"><i class="ri-whatsapp-line"></i></a>
+        <button id="floatCartBtn" class="float-cart-btn hidden">
+            <i class="ri-shopping-bag-3-line"></i>
+            <span id="floatTotal" class="float-total">$0</span>
+        </button>
+    </div>
+
+    <div class="modal-backdrop" id="modalCart">
+        <div class="modal-panel">
+            <div class="modal-header">
+                <h3>Tu Pedido (<span id="cartCountHeader">0</span>)</h3>
+                <button id="cartCloseBtn" class="close-modal"><i class="ri-close-line"></i></button>
+            </div>
+            <div class="modal-body" id="cartItemsContainer"></div>
+            <div class="modal-footer">
+                <div class="total-row"><span>Total:</span><strong id="cartFinalTotal">$0</strong></div>
+                <button class="btn-checkout" id="cartCheckoutBtn">Finalizar en WhatsApp</button>
+            </div>
+        </div>
+    </div>
+
+    <template id="card-template">
+        <article class="product-card">
+            <div class="img-container"><img src="" class="prod-img"></div>
+            <div class="card-info">
+                <h3 class="prod-title">Nombre</h3>
+                <div class="price-row">
+                    <span class="price-main">$0</span>
+                    <button class="btn-add"><i class="ri-add-line"></i></button>
+                </div>
+            </div>
+        </article>
+    </template>
+
+    <template id="cart-item-template">
+        <div class="cart-item">
+            <img class="cart-item__img" src="">
+            <div class="cart-item__info"><h4 class="cart-item__name"></h4><span class="cart-item__price"></span></div>
+            <div class="qty-control">
+                <button class="btn-sub"><i class="ri-subtract-line"></i></button>
+                <span class="qty-control__qty">1</span>
+                <button class="btn-add"><i class="ri-add-line"></i></button>
+            </div>
+        </div>
+    </template>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        const SUPABASE_URL = 'https://ecbttgygewlfxlusfvtn.supabase.co';
+        const SUPABASE_KEY = 'sb_publishable_w8yszqueZFM7EHw4m5xWzg_szNlldoO';
+        window.supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    </script>
+
+    <script src="js/data.js" defer></script>
+	<script src="js/cart.js" defer></script>
+	<script src="js/ui.js" defer></script>
+	<script src="js/app.js" defer></script>
+
+</body>
+</html>

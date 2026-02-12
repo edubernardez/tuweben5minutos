@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>TuWebEn5Minutos | Crea tu Tienda Online</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="../css/style.css">
+    
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+</head>
+<body>
+
+    <div class="ambient-light"></div>
+
+    <div class="cyber-planet planet-1"></div>
+    <div class="cyber-planet planet-2"></div>
+
+    <nav class="glass-nav">
+        <div class="logo">TuWeb<span class="highlight">En5Minutos</span>.</div>
+        <div class="menu">
+            <a href="#demo">Generador</a>
+            <a href="#planes">Planes</a>
+            <a href="../app/login.html" class="btn-login">Acceso Clientes</a>
+        </div>
+    </nav>
+
+    <header id="demo" class="hero-container">
+        <div class="hero-content">
+            <div class="badge-ai">✨ Crea tu Web Gratis Ahora</div>
+            <h1>Tu Negocio Online <br> <span class="text-gradient">En un Instante.</span></h1>
+            <p>Escribe los datos de tu negocio y mira cómo se crea tu web automáticamente.</p>
+            
+            <div class="magic-input-box glass-card">
+                <div class="input-group">
+                    <label>Nombre de tu Marca</label>
+                    <input type="text" id="brandName" placeholder="Ej: Pizzería Luigi">
+                </div>
+                <div class="input-group">
+                    <label>Rubro / Categoría</label>
+                    <select id="businessType">
+                        <option value="moda">Ropa y Moda</option>
+                        <option value="tecnologia">Tecnología</option>
+                        <option value="comida">Comida / Delivery</option>
+                        <option value="servicios">Servicios Prof.</option>
+                        <option value="deportes">Deportes</option>
+                        <option value="hogar">Hogar y Deco</option>
+                        <option value="belleza">Belleza</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label>Tu WhatsApp (Para Ventas)</label>
+                    <input type="tel" id="whatsappNumber" placeholder="Ej: 099123456">
+                </div>
+                <button onclick="abrirEditor()" class="btn-magic">
+                    <i class="ph-fill ph-sparkle"></i> GENERAR
+                </button>
+            </div>
+            
+            <p class="micro-copy">🔒 Sin tarjetas de crédito. Prueba ilimitada.</p>
+        </div>
+    </header>
+
+    <div id="editorOverlay" class="editor-overlay">
+        
+        <button id="mobileToggle" class="mobile-toggle-btn" onclick="toggleMobileEditor()">
+            🎨 Personalizar
+        </button>
+
+        <aside class="editor-sidebar glass-panel" id="sidebarPanel">
+            <div class="sidebar-header">
+                <h3>Personaliza tu Web</h3>
+                <button class="close-btn"><i class="ph ph-x"></i></button>
+            </div>
+
+            <div class="scrollable-content">
+                <div class="control-section" style="padding: 20px;">
+                  <label style="color:#94a3b8; font-size:0.8rem; text-transform:uppercase; font-weight:700; display:block; margin-bottom:10px;">💎 Estilo Visual</label>
+
+                  <div class="template-list">
+                    <div class="template-item active" onclick="cambiarTemplate('base', this)">
+                      <img src="https://placehold.co/100x60/fff/333?text=Clean" alt="Base" style="width:100%; border-radius:5px; margin-bottom:5px;">
+                      <span>Modern Clean</span>
+                    </div>
+
+                    <div class="template-item" onclick="cambiarTemplate('dark', this)">
+                      <img src="https://placehold.co/100x60/000/0ff?text=Dark" alt="Dark" style="width:100%; border-radius:5px; margin-bottom:5px;">
+                      <span>Dark Tech</span>
+                    </div>
+
+                    <div class="template-item" onclick="cambiarTemplate('luxury', this)">
+                      <img src="https://placehold.co/100x60/222/d4af37?text=Gold" alt="Luxury" style="width:100%; border-radius:5px; margin-bottom:5px;">
+                      <span>Luxury Gold</span>
+                    </div>
+                  </div>
+                </div>
+            </div>
+
+            <div class="sidebar-footer">
+                <p>¿Te gusta el resultado?</p>
+                <button onclick="comprarWeb()" class="btn-primary full" style="display:flex; justify-content:center; align-items:center; gap:8px;">
+                    🚀 Pedir esta Web ($99)
+                </button>
+            </div>
+        </aside>
+
+        <main class="preview-area">
+            <div class="device-mockup">
+                <iframe id="previewFrame" src="about:blank"></iframe>
+            </div>
+        </main>
+    </div>
+
+    <script src="js/app.js"></script>
+    <script>
+        function comprarWeb() {
+            const nombre = document.getElementById("brandName").value || "Mi Marca";
+            const rubro = document.getElementById("businessType").value;
+            let tema = "Moderno";
+            if(document.querySelector('.template-item.active span').innerText.includes("Dark")) tema = "Dark Tech";
+            if(document.querySelector('.template-item.active span').innerText.includes("Luxury")) tema = "Luxury Gold";
+
+            const mensaje = `Hola! Vengo de TuWebEn5Minutos.\nQuiero comprar el plan 'Llave en Mano' ($99).\n\nDatos de mi web:\n- Nombre: ${nombre}\n- Rubro: ${rubro}\n- Estilo: ${tema}`;
+            
+            window.open(`https://wa.me/59899123456?text=${encodeURIComponent(mensaje)}`, '_blank');
+        }
+
+        // --- MOTOR DE EFECTOS GALÁCTICOS ---
+        document.addEventListener('DOMContentLoaded', () => {
+            const container = document.querySelector('.ambient-light');
+            
+            // 1. CREAR ESTILOS DINÁMICOS (Keyframes)
+            const style = document.createElement('style');
+            style.innerHTML = `
+                @keyframes twinkle {
+                    0%, 100% { opacity: 0.3; transform: scale(0.8); }
+                    50% { opacity: 1; transform: scale(1.2); }
+                }
+            `;
+            document.head.appendChild(style);
+
+            // 2. GENERAR ESTRELLAS DE FONDO (TWINKLING)
+            const starCount = 80; 
+            for(let i=0; i<starCount; i++) {
+                const star = document.createElement('div');
+                const size = Math.random() * 2 + 1;
+                star.style.width = `${size}px`;
+                star.style.height = `${size}px`;
+                star.style.background = 'white';
+                star.style.position = 'absolute';
+                star.style.top = `${Math.random() * 100}%`;
+                star.style.left = `${Math.random() * 100}%`;
+                star.style.borderRadius = '50%';
+                star.style.opacity = Math.random();
+                star.style.boxShadow = `0 0 ${size}px rgba(255,255,255,0.8)`;
+                star.style.animation = `twinkle ${Math.random() * 3 + 2}s infinite ease-in-out`;
+                container.appendChild(star);
+            }
+
+            // 3. GENERADOR DE METEORITOS (SHOOTING STARS)
+            function createMeteor() {
+                const meteor = document.createElement('div');
+                meteor.classList.add('meteor'); // Usa la clase CSS que definimos antes
+                
+                // Posición aleatoria de inicio (arriba a la derecha)
+                const startX = Math.random() * window.innerWidth + 100;
+                const startY = Math.random() * -100; // Empieza fuera de pantalla arriba
+                
+                meteor.style.left = `${startX}px`;
+                meteor.style.top = `${startY}px`;
+                
+                // Variación de velocidad
+                const duration = Math.random() * 1 + 0.5; // Entre 0.5 y 1.5s
+                meteor.style.animationDuration = `${duration}s`;
+
+                document.body.appendChild(meteor);
+
+                // Limpieza de memoria
+                setTimeout(() => { meteor.remove(); }, duration * 1000);
+            }
+
+            // Bucle infinito de meteoritos
+            function loopMeteors() {
+                // Tiempo aleatorio entre meteoritos (2 a 5 segundos)
+                const time = Math.random() * 3000 + 2000; 
+                setTimeout(() => {
+                    createMeteor();
+                    loopMeteors();
+                }, time);
+            }
+
+            // Iniciar la lluvia
+            loopMeteors();
+            setTimeout(createMeteor, 1000); // Lanzar uno al segundo de entrar
+        });
+    </script>
+    
+</body>
+</html>
